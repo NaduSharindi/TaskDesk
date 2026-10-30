@@ -1,0 +1,36 @@
+@model IReadOnlyList<WorkloadRow>
+@{
+    ViewData["Title"] = "Department workload";
+}
+<div class="page-header">
+    <div>
+        <h1>Department workload</h1>
+        <p class="muted">As of @Clock.Today.ToString("dd MMM yyyy") · produced by <code>dbo.usp_GetDepartmentWorkload</code> on SQL Server</p>
+    </div>
+    <a class="btn" asp-action="ExportCsv">Export tasks (CSV)</a>
+</div>
+
+<div class="table-wrap card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Department</th><th class="num">Open</th><th class="num">In progress</th><th class="num">Blocked</th>
+                <th class="num">Overdue</th><th class="num">Due today</th><th class="num">Done (7 days)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td><strong>@row.DepartmentCode</strong> · @row.DepartmentName</td>
+                    <td class="num">@row.OpenTasks</td>
+                    <td class="num">@row.InProgressTasks</td>
+                    <td class="num">@row.BlockedTasks</td>
+                    <td class="num @(row.OverdueTasks > 0 ? "overdue" : null)">@row.OverdueTasks</td>
+                    <td class="num">@row.DueToday</td>
+                    <td class="num">@row.CompletedLast7Days</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

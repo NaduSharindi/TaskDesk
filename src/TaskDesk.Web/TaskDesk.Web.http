@@ -1,0 +1,65 @@
+# Integration API samples - Visual Studio / Rider / VS Code REST Client.
+# Run the app first (http profile): dotnet run --project src/TaskDesk.Web
+@baseUrl = http://localhost:5090
+@apiKey = dev-helpdesk-key-0001-change-me
+
+### Create a task from a helpdesk ticket (send twice: 201 then 200, same task)
+POST {{baseUrl}}/api/v1/tasks
+X-Api-Key: {{apiKey}}
+Content-Type: application/json
+
+{
+  "externalReference": "HD-2026-0042",
+  "title": "Replace faulty network switch on 2nd floor",
+  "description": "Ticket HD-2026-0042 raised by Branch Operations.",
+  "priority": "High",
+  "dueDate": "2026-11-05",
+  "departmentCode": "IT",
+  "assigneeEmail": "staff.it@taskdesk.local"
+}
+
+### Same request in XML
+POST {{baseUrl}}/api/v1/tasks
+X-Api-Key: {{apiKey}}
+Content-Type: application/xml
+Accept: application/xml
+
+<CreateTaskRequest>
+  <ExternalReference>HD-2026-0043</ExternalReference>
+  <Title>Install accounting software update</Title>
+  <Priority>Medium</Priority>
+  <DepartmentCode>FIN</DepartmentCode>
+</CreateTaskRequest>
+
+### Poll for changes since a point in time
+GET {{baseUrl}}/api/v1/tasks?updatedSinceUtc=2026-10-01T00:00:00Z
+X-Api-Key: {{apiKey}}
+
+### Look up by the helpdesk ticket number
+GET {{baseUrl}}/api/v1/tasks/by-reference/HD-2026-0042
+X-Api-Key: {{apiKey}}
+Accept: application/xml
+
+### Add a comment from the helpdesk
+POST {{baseUrl}}/api/v1/tasks/1/comments
+X-Api-Key: {{apiKey}}
+Content-Type: application/json
+
+{ "text": "User confirmed the issue is still happening." }
+
+### Without a key -> 401 problem+json
+GET {{baseUrl}}/api/v1/tasks
+
+### Health (anonymous)
+GET {{baseUrl}}/health/ready
+
+### Mock SOAP holiday service (Development only)
+POST {{baseUrl}}/mock/soap/holidays
+Content-Type: text/xml; charset=utf-8
+SOAPAction: "http://taskdesk.example/holidays/GetHolidays"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetHolidays xmlns="http://taskdesk.example/holidays"><Year>2026</Year></GetHolidays>
+  </soap:Body>
+</soap:Envelope>

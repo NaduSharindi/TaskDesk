@@ -1,0 +1,10 @@
+@using TaskDesk
+@using TaskDesk.Common
+@using TaskDesk.Domain
+@using TaskDesk.Models
+@using TaskDesk.Services
+@using TaskDesk.Security
+@using Microsoft.AspNetCore.Authorization
+@inject IClock Clock
+@inject IAuthorizationService AuthorizationService
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

@@ -1,0 +1,14 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<section class="card narrow center">
+    <p class="error-code">@Model.StatusCode</p>
+    <h1>@Model.Title</h1>
+    <p>@Model.Message</p>
+    @if (!string.IsNullOrEmpty(Model.CorrelationId))
+    {
+        <p class="muted">Reference: <code>@Model.CorrelationId</code></p>
+    }
+    <a class="btn" asp-controller="Home" asp-action="Index">Back to dashboard</a>
+</section>

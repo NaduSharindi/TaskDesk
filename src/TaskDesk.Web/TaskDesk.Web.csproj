@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>TaskDesk</RootNamespace>
+    <AssemblyName>TaskDesk.Web</AssemblyName>
+    <UserSecretsId>taskdesk-web-3c9a71e2-portfolio</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <!-- T-SQL objects are kept in /database (DBA-friendly) and embedded so the app can deploy them. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\database\01_Reporting.sql;..\..\database\02_Maintenance.sql"
+                      LogicalName="TaskDesk.Sql.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+@model TaskFormViewModel
+@{
+    ViewData["Title"] = "New task";
+}
+<section class="card narrow">
+    <h1>New task</h1>
+    <form asp-action="Create" method="post" novalidate>
+        <partial name="_TaskForm" model="Model" />
+        <div class="form-actions">
+            <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create task</button>
+        </div>
+    </form>
+</section>

@@ -1,0 +1,71 @@
+@model Dashboard
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div class="page-header">
+    <div>
+        <h1>Good day, @User.FindFirst(AppClaimTypes.FullName)?.Value</h1>
+        <p class="muted">@Clock.Today.ToString("dddd, dd MMMM yyyy")@(Model.IsTeamView ? " · team view" : "")</p>
+    </div>
+    <a class="btn btn-primary" asp-controller="Tasks" asp-action="Create">+ New task</a>
+</div>
+
+<section class="stats">
+    <a class="stat" asp-controller="Tasks" asp-action="Index" asp-route-View="assigned">
+        <span class="stat-value">@Model.MyOpen</span><span class="stat-label">Assigned to me</span>
+    </a>
+    <a class="stat stat-danger" asp-controller="Tasks" asp-action="Index" asp-route-View="all" asp-route-OverdueOnly="true">
+        <span class="stat-value">@Model.Overdue</span><span class="stat-label">Overdue</span>
+    </a>
+    <div class="stat stat-warning">
+        <span class="stat-value">@Model.DueToday</span><span class="stat-label">Due today</span>
+    </div>
+    <div class="stat">
+        <span class="stat-value">@Model.DueNext7Days</span><span class="stat-label">Due in 7 days</span>
+    </div>
+</section>
+
+<div class="grid-2">
+    <section class="card">
+        <h2>My next tasks</h2>
+        @if (Model.MyUpcoming.Count == 0)
+        {
+            <p class="muted">Nothing assigned to you. Enjoy the calm.</p>
+        }
+        else
+        {
+            <ul class="task-list">
+                @foreach (var task in Model.MyUpcoming)
+                {
+                    <li>
+                        <a asp-controller="Tasks" asp-action="Details" asp-route-id="@task.Id">
+                            <span class="ref">@task.Reference</span> @task.Title
+                        </a>
+                        <span class="meta">
+                            <partial name="_PriorityBadge" model="task.Priority" />
+                            @if (task.DueDate is { } due)
+                            {
+                                <span class="@(task.IsOverdue ? "overdue" : null)">@due.ToString("dd MMM")</span>
+                            }
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="card">
+        <h2>@(Model.IsTeamView ? "Team" : "My") tasks by status</h2>
+        <table class="table compact">
+            <tbody>
+                @foreach (var (status, count) in Model.ByStatus)
+                {
+                    <tr>
+                        <td><partial name="_StatusBadge" model="status" /></td>
+                        <td class="num">@count</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+</div>

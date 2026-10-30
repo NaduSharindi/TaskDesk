@@ -1,0 +1,24 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+<section class="card narrow login">
+    <h1>Sign in to TaskDesk</h1>
+    <p class="muted">Use your office e-mail address.</p>
+
+    <form asp-action="Login" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <label asp-for="Email">E-mail</label>
+        <input asp-for="Email" autocomplete="username" autofocus />
+        <span asp-validation-for="Email" class="field-error"></span>
+
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" autocomplete="current-password" />
+        <span asp-validation-for="Password" class="field-error"></span>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+    </form>
+    <p class="muted small">Accounts lock for 15 minutes after 5 failed attempts.</p>
+</section>

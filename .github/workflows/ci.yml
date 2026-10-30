@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore TaskDesk.slnx
+
+      - name: Build
+        run: dotnet build TaskDesk.slnx -c Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test TaskDesk.slnx -c Release --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --results-directory ./TestResults
+
+      - name: Check for vulnerable packages
+        run: dotnet list TaskDesk.slnx package --vulnerable --include-transitive
+
+      - name: Publish IIS package
+        run: dotnet publish src/TaskDesk.Web/TaskDesk.Web.csproj -c Release -o ./publish --no-build
+
+      - name: Zip package
+        run: cd publish && zip -qr ../taskdesk-${{ github.sha }}.zip .
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+
+      - name: Upload deployable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: taskdesk-iis-package
+          path: taskdesk-${{ github.sha }}.zip
+          retention-days: 30

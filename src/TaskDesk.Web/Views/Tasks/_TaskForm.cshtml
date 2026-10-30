@@ -1,0 +1,28 @@
+@model TaskFormViewModel
+<div asp-validation-summary="ModelOnly" class="alert alert-error"></div>
+<input type="hidden" asp-for="ConcurrencyStamp" />
+
+<label asp-for="Title"></label>
+<input asp-for="Title" maxlength="@TaskItem.TitleMaxLength" />
+<span asp-validation-for="Title" class="field-error"></span>
+
+<label asp-for="Description"></label>
+<textarea asp-for="Description" rows="5" maxlength="@TaskItem.DescriptionMaxLength"></textarea>
+<span asp-validation-for="Description" class="field-error"></span>
+
+<div class="grid-3">
+    <div>
+        <label asp-for="Priority"></label>
+        <select asp-for="Priority" asp-items="Html.GetEnumSelectList<TaskPriority>()"></select>
+    </div>
+    <div>
+        <label asp-for="DueDate"></label>
+        <input asp-for="DueDate" type="date" />
+        <span asp-validation-for="DueDate" class="field-error"></span>
+    </div>
+    <div>
+        <label asp-for="AssignedToId"></label>
+        <select asp-for="AssignedToId" asp-items="Model.AssigneeOptions"></select>
+    </div>
+</div>
+<p class="muted small">You will be warned if the due date falls on a weekend or public holiday.</p>

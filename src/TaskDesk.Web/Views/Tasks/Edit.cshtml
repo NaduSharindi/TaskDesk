@@ -1,0 +1,14 @@
+@model TaskFormViewModel
+@{
+    ViewData["Title"] = "Edit " + TaskItem.FormatReference(Model.Id ?? 0);
+}
+<section class="card narrow">
+    <h1>Edit <span class="ref">@TaskItem.FormatReference(Model.Id ?? 0)</span></h1>
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" novalidate>
+        <partial name="_TaskForm" model="Model" />
+        <div class="form-actions">
+            <a class="btn btn-ghost" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </form>
+</section>

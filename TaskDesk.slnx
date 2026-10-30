@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TaskDesk.Web/TaskDesk.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TaskDesk.Tests/TaskDesk.Tests.csproj" />
+  </Folder>
+</Solution>

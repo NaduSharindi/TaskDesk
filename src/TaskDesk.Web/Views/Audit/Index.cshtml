@@ -1,0 +1,62 @@
+@model AuditListViewModel
+@{
+    ViewData["Title"] = "Audit log";
+    var r = Model.Result;
+}
+<div class="page-header">
+    <div>
+        <h1>Audit log</h1>
+        <p class="muted">Append-only record of sign-ins and every change to tasks, comments and departments.</p>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="filters card">
+    <div class="field grow">
+        <label for="userName">User</label>
+        <input id="userName" name="userName" value="@Model.UserName" placeholder="e.g. staff.it@taskdesk.local" />
+    </div>
+    <div class="field">
+        <label for="eventType">Action</label>
+        <select id="eventType" name="eventType">
+            <option value="">Any</option>
+            @foreach (var a in new[] { "Created", "Updated", "LoginSucceeded", "LoginFailed", "LoginLockedOut", "Logout", "ExportedTasksCsv" })
+            {
+                <option value="@a" selected="@(Model.EventType == a)">@a</option>
+            }
+        </select>
+    </div>
+    <div class="field"><button type="submit" class="btn">Filter</button></div>
+</form>
+
+<div class="table-wrap card">
+    <table class="table compact">
+        <thead><tr><th>#</th><th>When (office time)</th><th>User</th><th>Action</th><th>Entity</th><th>IP</th><th>Ref</th><th>Changes</th></tr></thead>
+        <tbody>
+            @foreach (var e in r.Items)
+            {
+                <tr>
+                    <td>@e.Id</td>
+                    <td class="nowrap">@Clock.ToOfficeTime(e.TimestampUtc).ToString("dd MMM yyyy HH:mm:ss")</td>
+                    <td>@e.UserName</td>
+                    <td>@e.Action</td>
+                    <td>@e.EntityName #@e.EntityId</td>
+                    <td>@e.IpAddress</td>
+                    <td><code>@e.CorrelationId</code></td>
+                    <td><code class="changes">@e.Changes</code></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<nav class="pager">
+    <span class="muted">@r.TotalCount entries · page @r.Page of @r.TotalPages</span>
+    @if (r.HasPrevious)
+    {
+        <a class="btn btn-sm" asp-action="Index" asp-route-userName="@Model.UserName" asp-route-eventType="@Model.EventType" asp-route-page="@(r.Page - 1)">‹ Newer</a>
+    }
+    @if (r.HasNext)
+    {
+        <a class="btn btn-sm" asp-action="Index" asp-route-userName="@Model.UserName" asp-route-eventType="@Model.EventType" asp-route-page="@(r.Page + 1)">Older ›</a>
+    }
+</nav>

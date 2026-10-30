@@ -1,0 +1,103 @@
+@model TaskDetailsViewModel
+@{
+    var d = Model.Details;
+    var t = d.Task;
+    ViewData["Title"] = t.Reference;
+}
+<div class="page-header">
+    <div>
+        <p class="ref">@t.Reference · @t.Department?.Name</p>
+        <h1>@t.Title</h1>
+        <p>
+            <partial name="_StatusBadge" model="t.Status" />
+            <partial name="_PriorityBadge" model="t.Priority" />
+            @if (t.IsOverdue(Clock.Today))
+            {
+                <span class="badge overdue-badge">Overdue</span>
+            }
+        </p>
+    </div>
+    @if (d.CanEdit)
+    {
+        <a class="btn" asp-action="Edit" asp-route-id="@t.Id">Edit</a>
+    }
+</div>
+
+@foreach (var warning in d.DueDateWarnings)
+{
+    <div class="alert alert-warning">@warning</div>
+}
+
+<div class="grid-2 details">
+    <section class="card">
+        <h2>Details</h2>
+        <p class="description">@(t.Description ?? "No description.")</p>
+        <dl class="facts">
+            <dt>Due date</dt><dd>@(t.DueDate?.ToString("dddd, dd MMM yyyy") ?? "Not set")</dd>
+            <dt>Assigned to</dt><dd>@(t.AssignedTo?.FullName ?? "Unassigned")</dd>
+            <dt>Created by</dt><dd>@t.CreatedByName · @Clock.ToOfficeTime(t.CreatedAtUtc).ToString("dd MMM yyyy HH:mm")</dd>
+            <dt>Source</dt><dd>@t.Source@(t.ExternalReference is null ? "" : $" ({t.ExternalReference})")</dd>
+            @if (t.CompletedAtUtc is { } completed)
+            {
+                <dt>Completed</dt><dd>@Clock.ToOfficeTime(completed).ToString("dd MMM yyyy HH:mm")</dd>
+            }
+        </dl>
+
+        @if (d.CanChangeStatus && t.AllowedTransitions.Count > 0)
+        {
+            <h3>Move to</h3>
+            <div class="status-actions">
+                @foreach (var next in t.AllowedTransitions)
+                {
+                    <form asp-action="ChangeStatus" asp-route-id="@t.Id" method="post">
+                        <input type="hidden" name="status" value="@next" />
+                        <button type="submit" class="btn btn-sm status-btn-@next.ToString().ToLowerInvariant()">@next.ToDisplay()</button>
+                    </form>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="card" id="comments">
+        <h2>Comments (@t.Comments.Count)</h2>
+        <ul class="comments">
+            @foreach (var c in t.Comments.OrderBy(c => c.CreatedAtUtc))
+            {
+                <li>
+                    <div class="comment-meta"><strong>@c.AuthorName</strong> · @Clock.ToOfficeTime(c.CreatedAtUtc).ToString("dd MMM HH:mm")</div>
+                    <div class="comment-text">@c.Text</div>
+                </li>
+            }
+        </ul>
+        <form asp-action="AddComment" asp-route-id="@t.Id" method="post" novalidate>
+            <label asp-for="NewComment.Text">Add a comment</label>
+            <textarea asp-for="NewComment.Text" rows="3" maxlength="@TaskItem.CommentMaxLength"></textarea>
+            <button type="submit" class="btn btn-sm">Post comment</button>
+        </form>
+    </section>
+</div>
+
+<section class="card">
+    <h2>History <span class="muted small">(audit trail)</span></h2>
+    @if (d.History.Count == 0)
+    {
+        <p class="muted">No history yet.</p>
+    }
+    else
+    {
+        <table class="table compact">
+            <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Changes</th></tr></thead>
+            <tbody>
+                @foreach (var h in d.History)
+                {
+                    <tr>
+                        <td class="nowrap">@Clock.ToOfficeTime(h.TimestampUtc).ToString("dd MMM yyyy HH:mm:ss")</td>
+                        <td>@h.UserName</td>
+                        <td>@h.Action</td>
+                        <td><code class="changes">@h.Changes</code></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

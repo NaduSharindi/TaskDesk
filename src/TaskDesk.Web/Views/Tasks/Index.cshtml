@@ -1,0 +1,111 @@
+@model TaskListViewModel
+@{
+    ViewData["Title"] = "Tasks";
+    var f = Model.Filter;
+    var r = Model.Result;
+}
+<div class="page-header">
+    <h1>Tasks</h1>
+    <div class="actions">
+        @if (Model.CanSeeTeam)
+        {
+            <a class="btn" asp-controller="Reports" asp-action="ExportCsv">Export CSV</a>
+        }
+        <a class="btn btn-primary" asp-action="Create">+ New task</a>
+    </div>
+</div>
+
+<form method="get" asp-action="Index" class="filters card">
+    <div class="field">
+        <label for="View">Show</label>
+        <select id="View" name="View">
+            <option value="assigned" selected="@(f.View == "assigned")">Assigned to me</option>
+            <option value="created" selected="@(f.View == "created")">Created by me</option>
+            <option value="all" selected="@(f.View == "all")">@(Model.CanSeeTeam ? "My team / all I can see" : "All my tasks")</option>
+        </select>
+    </div>
+    <div class="field grow">
+        <label for="Search">Search</label>
+        <input id="Search" name="Search" value="@f.Search" placeholder="Title, description or TD-00012" />
+    </div>
+    <div class="field">
+        <label for="Status">Status</label>
+        <select id="Status" name="Status">
+            <option value="">Open (any)</option>
+            @foreach (var s in Enum.GetValues<WorkStatus>())
+            {
+                <option value="@s" selected="@(f.Status == s)">@s.ToDisplay()</option>
+            }
+        </select>
+    </div>
+    <div class="field">
+        <label for="Priority">Priority</label>
+        <select id="Priority" name="Priority">
+            <option value="">Any</option>
+            @foreach (var p in Enum.GetValues<TaskPriority>())
+            {
+                <option value="@p" selected="@(f.Priority == p)">@p</option>
+            }
+        </select>
+    </div>
+    <div class="field checkbox">
+        <label><input type="checkbox" name="OverdueOnly" value="true" checked="@f.OverdueOnly" /> Overdue only</label>
+        <label><input type="checkbox" name="IncludeClosed" value="true" checked="@f.IncludeClosed" /> Include closed</label>
+    </div>
+    <div class="field">
+        <button type="submit" class="btn">Apply</button>
+    </div>
+</form>
+
+@if (r.Items.Count == 0)
+{
+    <section class="card center"><p class="muted">No tasks match these filters.</p></section>
+}
+else
+{
+    <div class="table-wrap card">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ref</th><th>Title</th><th>Priority</th><th>Status</th><th>Due</th><th>Assigned to</th><th>Department</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in r.Items)
+                {
+                    <tr class="@(t.IsOverdue ? "row-overdue" : null)">
+                        <td class="ref">@t.Reference</td>
+                        <td><a asp-action="Details" asp-route-id="@t.Id">@t.Title</a></td>
+                        <td><partial name="_PriorityBadge" model="t.Priority" /></td>
+                        <td><partial name="_StatusBadge" model="t.Status" /></td>
+                        <td class="nowrap">
+                            @(t.DueDate?.ToString("dd MMM yyyy") ?? "—")
+                            @if (t.IsOverdue)
+                            {
+                                <span class="overdue">overdue</span>
+                            }
+                        </td>
+                        <td>@(t.AssigneeName ?? "Unassigned")</td>
+                        <td>@t.DepartmentName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pager" aria-label="Pagination">
+        <span class="muted">@r.TotalCount task(s) · page @r.Page of @r.TotalPages</span>
+        @if (r.HasPrevious)
+        {
+            <a class="btn btn-sm" asp-action="Index" asp-route-View="@f.View" asp-route-Search="@f.Search" asp-route-Status="@f.Status"
+               asp-route-Priority="@f.Priority" asp-route-OverdueOnly="@f.OverdueOnly" asp-route-IncludeClosed="@f.IncludeClosed"
+               asp-route-Page="@(r.Page - 1)">‹ Previous</a>
+        }
+        @if (r.HasNext)
+        {
+            <a class="btn btn-sm" asp-action="Index" asp-route-View="@f.View" asp-route-Search="@f.Search" asp-route-Status="@f.Status"
+               asp-route-Priority="@f.Priority" asp-route-OverdueOnly="@f.OverdueOnly" asp-route-IncludeClosed="@f.IncludeClosed"
+               asp-route-Page="@(r.Page + 1)">Next ›</a>
+        }
+    </nav>
+}
