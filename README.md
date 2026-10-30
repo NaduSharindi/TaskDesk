@@ -1,11 +1,5 @@
 # TaskDesk – Office To-Do Manager
 
-[![CI](https://github.com/YOUR-GITHUB-USERNAME/TaskDesk/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-GITHUB-USERNAME/TaskDesk/actions/workflows/ci.yml)
-![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)
-![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET%20Core-MVC%20%2B%20Web%20API-5C2D91)
-![SQL Server](https://img.shields.io/badge/SQL%20Server-T--SQL-CC2927)
-![IIS](https://img.shields.io/badge/deploy-IIS%20%2F%20Windows%20Server-0078D4)
-
 An internal web application for an office to create, assign and track tasks, built with
 **ASP.NET Core MVC, Web API, Entity Framework Core and SQL Server**, deployed on **IIS / Windows Server**.
 It is deliberately small in features but complete in the things a production system in a regulated
